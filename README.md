@@ -1,11 +1,32 @@
-<div align="center">
+## 🚀 TraceBack – Smart Lost & Found System
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+TraceBack is a modern, user-friendly platform designed to simplify the process of reporting, tracking, and recovering lost items within a campus or community.
 
-  <h1>Built with AI Studio</h2>
+### ✨ Features
+- 📌 Report lost or found items with detailed descriptions and images  
+- 🔎 Smart search and filtering to quickly find matching items  
+- 🤝 Connect users to facilitate safe and quick item recovery  
+- 📱 Fully responsive UI with smooth animations and modern design  
+- 🔔 Real-time updates and status tracking  
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+### 🎯 Purpose
+The goal of TraceBack is to reduce the hassle of lost items by creating a centralized, efficient, and accessible system that connects people and improves recovery success rates.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 🛠️ Tech Stack
+- Frontend: HTML, CSS (Tailwind), JavaScript / React  
+- Backend: (Add yours — Node.js / Firebase / etc.)  
+- Database: (MongoDB / Firestore / etc.)  
 
-</div>
+### 🌟 Why This Project?
+Losing items is common, but recovering them shouldn’t be difficult. TraceBack leverages technology to bring people together and make the process seamless and reliable.
+
+### 📌 Future Improvements
+- AI-based item matching  
+- Image recognition for object detection  
+- Mobile app version  
+- Notification system  
+
+---
+
+💡 *Built with the vision of making lost items find their way back home.*
+# Please try to run this on desktop site.
