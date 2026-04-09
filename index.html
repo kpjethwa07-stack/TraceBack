@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TraceBack - The ultimate campus lost-and-found portal. Reconnecting you with your belongings through a modern, secure, and efficient platform.">
+    <meta name="keywords" content="lost and found, campus, recovery, TraceBack, belongings">
+    <meta property="og:title" content="TraceBack | Campus Lost & Found">
+    <meta property="og:description" content="Reconnecting you with your belongings through a modern, secure, and efficient platform.">
+    <meta property="og:type" content="website">
+    <link rel="manifest" href="/manifest.json">
+    <title>TraceBack | Campus Lost & Found</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* SECTION: Variables & Theme */
+        :root {
+            --primary: #6B0F1A; /* Maroon */
+            --primary-light: #8b1222;
+            --accent: #D4AF37;  /* Gold */
+            --accent-glow: rgba(212, 175, 55, 0.3);
+            --bg-dark: #0a0a0a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --text-main: #f8f9fa;
+            --text-muted: #a0a0a0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px var(--accent-glow);
+            --transition: cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --bg-card: rgba(0, 0, 0, 0.02);
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --glass-bg: rgba(0, 0, 0, 0.03);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* SECTION: Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            transition: background-color 0.5s var(--transition), color 0.5s var(--transition);
+            line-height: 1.6;
+        }
+
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+        ul { list-style: none; }
+        button { cursor: pointer; border: none; outline: none; background: none; transition: var(--transition); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* SECTION: Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes bg-pan {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 10px var(--accent-glow); }
+            50% { text-shadow: 0 0 25px var(--accent); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .fade-in { animation: fadeIn 1s ease forwards; }
+        .shake { animation: shake 0.4s ease; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* SECTION: Layout Components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.01);
+            transition: all 0.4s var(--transition);
+            padding: 20px 0;
+        }
+
+        header.scrolled {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -1px;
+            animation: glow-pulse 3s infinite ease-in-out;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px var(--accent);
+        }
+
+        .logo span { color: var(--text-main); font-weight: 400; }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s var(--transition);
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 0.75rem;
+            display: inline-block;
+            transition: all 0.4s var(--transition);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 8px 20px -6px rgba(107, 15, 26, 0.5);
+            background-size: 200% 200%;
+            animation: bg-pan 5s infinite linear;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 25px -5px rgba(107, 15, 26, 0.7);
+        }
+
+        .btn-outline {
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-toggle:hover {
+            background: var(--glass-border);
+            transform: rotate(15deg);
+        }
+
+        /* SECTION: Pages */
+        section {
+            display: none;
+            min-height: 100vh;
+            padding-top: 120px;
+            padding-bottom: 80px;
+        }
+
+        section.active {
+            display: block;
+            animation: fadeIn 0.6s var(--transition);
+        }
+
+        /* Landing Page */
+        #landing {
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, rgba(107, 15, 26, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+            background-size: 200% 200%;
+            animation: bg-pan 15s infinite ease-in-out;
+        }
+
+        #landing.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin-bottom: 40px;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            margin-bottom: 24px;
+            color: var(--text-main);
+            line-height: 1.05;
+            font-weight: 800;
+            letter-spacing: -2px;
+        }
+
+        .hero-content h1 span {
+            background: linear-gradient(to right, var(--accent), #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .hero-content p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 48px;
+            line-height: 1.7;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 60px;
+            margin-top: 100px;
+            background: var(--glass-bg);
+            padding: 40px 80px;
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s var(--transition);
+        }
+
+        .stats-container:hover {
+            transform: scale(1.02);
+            border-color: var(--accent-glow);
+        }
+
+        .stat-item {
+            position: relative;
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background: var(--glass-border);
+        }
+
+        .stat-item:last-child::after { display: none; }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            color: var(--primary-light);
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .stat-item p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Auth Pages */
+        .auth-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            padding: 48px;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s var(--transition);
+        }
+
+        .auth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            border-color: var(--accent-glow);
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select, .form-group textarea, .filters select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .form-group select, .filters select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 18px;
+            padding-right: 45px;
+            cursor: pointer;
+        }
+
+        .filters select {
+            width: auto;
+            padding: 12px 45px 12px 20px;
+            min-width: 180px;
+        }
+
+        select option {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus, .filters select:focus {
+            border-color: var(--accent);
+            background: var(--bg-dark);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+        }
+
+        .password-strength {
+            height: 6px;
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            margin-top: 8px;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.4s var(--transition), background 0.4s var(--transition);
+        }
+
+        /* Dashboard */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), #4a0a10);
+            padding: 56px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(107, 15, 26, 0.4);
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+
+        .welcome-banner h2 {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .welcome-banner p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .action-card {
+            background: var(--bg-card);
+            padding: 48px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.5s var(--transition);
+        }
+
+        .action-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            background: rgba(212, 175, 55, 0.05);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .action-card i {
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin-bottom: 24px;
+            display: block;
+            transition: transform 0.5s var(--transition);
+        }
+
+        .action-card:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--glass-bg);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+        }
+
+        .search-bar input {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            width: 100%;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .item-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: all 0.5s var(--transition);
+            position: relative;
+        }
+
+        .item-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .item-img {
+            width: 100%;
+            height: 200px;
+            background: #151515;
+            object-fit: cover;
+            transition: transform 0.6s var(--transition);
+        }
+
+        .item-card:hover .item-img {
+            transform: scale(1.1);
+        }
+
+        .item-info {
+            padding: 24px;
+        }
+
+        .item-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .badge-lost { background: #e74c3c; color: white; }
+        .badge-found { background: #2ecc71; color: white; }
+        .badge-category { background: rgba(255,255,255,0.05); color: var(--accent); border: 1px solid var(--accent); }
+
+        .item-title {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .item-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Admin Panel */
+        .admin-stat-card {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .admin-stat-card:hover {
+            background: var(--glass-bg);
+            border-color: var(--accent);
+        }
+
+        .admin-stat-card h4 { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+        .admin-stat-card p { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+
+        .chart-container {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 48px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            height: 250px;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .bar-item {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary), var(--primary-light));
+            border-radius: 8px 8px 4px 4px;
+            position: relative;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-item:hover { background: var(--accent); transform: scaleX(1.1); }
+
+        .admin-table-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 48px;
+        }
+
+        th { 
+            background: rgba(255, 255, 255, 0.02); 
+            color: var(--accent); 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal-content {
+            background: #0f0f0f;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+        }
+
+        .modal-body {
+            padding: 40px;
+        }
+
+        .detail-img {
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Footer */
+        footer {
+            padding: 64px 0;
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-content h1 { font-size: 2.8rem; }
+            .stats-container { flex-direction: column; gap: 40px; padding: 40px; }
+            .stat-item::after { display: none; }
+            .action-cards { grid-template-columns: 1fr; }
+        }
+
+        /* Custom UI Elements */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+        }
+
+        .accent-gradient-text {
+            background: linear-gradient(to right, var(--accent), #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SECTION: Loader -->
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- SECTION: Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo" onclick="app.router.render('landing')">
+                    Trace<span>Back</span>
+                </a>
+                <div class="nav-links" id="nav-links">
+                    <!-- Dynamic links based on auth -->
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <button class="theme-toggle" onclick="app.ui.toggleTheme()">
+                        <i id="theme-icon">🌙</i>
+                    </button>
+                    <div id="user-profile-nav" style="margin-left: 20px;"></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- SECTION: Landing Page -->
+    <section id="landing" class="active">
+        <div class="particles" id="particles"></div>
+        <div class="container">
+            <div class="hero-content reveal" style="animation: float 6s infinite ease-in-out;">
+                <h1>Trace<span class="accent-gradient-text">Back</span></h1>
+                <p>The ultimate campus lost-and-found portal. Reconnecting you with your belongings through a modern, secure, and efficient platform.</p>
+                <div class="hero-btns">
+                    <button class="btn btn-primary" onclick="app.router.render('register')">Get Started</button>
+                    <button class="btn btn-outline" onclick="app.router.render('login')">Sign In</button>
+                </div>
+            </div>
+            <div class="stats-container reveal" style="transition-delay: 0.2s">
+                <div class="stat-item reveal" style="transition-delay: 0.3s">
+                    <h3 id="stat-reported">0</h3>
+                    <p>Items Reported</p>
+                </div>
+                <div class="stat-item reveal" style="transition-delay: 0.4s">
+                    <h3 id="stat-found">0</h3>
+                    <p>Items Found</p>
+                </div>
+                <div class="stat-item reveal" style="transition-delay: 0.5s">
+                    <h3 id="stat-users">0</h3>
+                    <p>Registered Users</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Auth Pages -->
+    <section id="login">
+        <div class="container">
+            <div class="auth-card reveal">
+                <h2>Login</h2>
+                <form id="login-form" onsubmit="app.auth.handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email Address<span class="required-star">*</span></label>
+                        <input type="email" id="login-email" placeholder="yourname@gmail.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password<span class="required-star">*</span></label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+                        <input type="checkbox" id="remember-me" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label style="margin: 0; cursor: pointer;">Remember Me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                    <p style="text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--text-muted);">
+                        Don't have an account? <a href="#" onclick="app.router.render('register')" style="color: var(--accent); font-weight: 600;">Register here</a>
+                    </p>
+                    <p style="text-align: center; margin-top: 12px; font-size: 0.85rem;">
+                        <a href="#" style="color: var(--text-muted); opacity: 0.6;">Forgot Password?</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="register">
+        <div class="container">
+            <div class="auth-card reveal">
+                <h2>Register</h2>
+                <form id="register-form" onsubmit="app.auth.handleRegister(event)">
+                    <div class="form-group">
+                        <label>Full Name<span class="required-star">*</span></label>
+                        <input type="text" id="reg-name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address<span class="required-star">*</span></label>
+                        <input type="email" id="reg-email" placeholder="yourname@gmail.com" oninput="app.auth.validateEmail(this)" required>
+                        <div id="email-error" class="error-msg" style="color: #e74c3c; font-size: 0.75rem; margin-top: 8px; display: none;">Please use a valid @gmail.com address.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password<span class="required-star">*</span></label>
+                        <input type="password" id="reg-password" placeholder="••••••••" oninput="app.auth.checkPasswordStrength(this)" required>
+                        <div class="password-strength"><div id="strength-bar" class="strength-bar"></div></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password<span class="required-star">*</span></label>
+                        <input type="password" id="reg-confirm" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">Create Account</button>
+                    <p style="text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--text-muted);">
+                        Already have an account? <a href="#" onclick="app.router.render('login')" style="color: var(--accent); font-weight: 600;">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Dashboard -->
+    <section id="dashboard">
+        <div class="container">
+            <div class="welcome-banner reveal">
+                <h2>Welcome back, <span id="user-display-name" class="accent-gradient-text">User</span>!</h2>
+                <p>Help keep our campus community safe and organized.</p>
+            </div>
+
+            <div class="action-cards">
+                <div class="action-card reveal" onclick="app.router.render('report', {type: 'lost'})" style="transition-delay: 0.1s">
+                    <i>🔍</i>
+                    <h3>I Lost Something</h3>
+                    <p>Post a listing for an item you've lost on campus.</p>
+                </div>
+                <div class="action-card reveal" onclick="app.router.render('report', {type: 'found'})" style="transition-delay: 0.2s">
+                    <i>🎁</i>
+                    <h3>I Found Something</h3>
+                    <p>Report an item you've found to help it reach its owner.</p>
+                </div>
+            </div>
+
+            <div id="my-listings-section" style="display: none; margin-bottom: 64px;">
+                <h3 style="margin-bottom: 24px; color: var(--accent); font-weight: 700; letter-spacing: -0.5px;">My Listings</h3>
+                <div class="item-grid" id="my-items-grid"></div>
+            </div>
+
+            <div class="browse-section">
+                <h3 style="margin-bottom: 24px; color: var(--accent); font-weight: 700; letter-spacing: -0.5px;">Browse All Items</h3>
+                <div class="filters reveal">
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Search items..." oninput="app.ui.debouncedSearch(this.value)">
+                    </div>
+                    <select id="category-filter" onchange="app.ui.filterItems()">
+                        <option value="all">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Books">Books</option>
+                        <option value="ID Cards">ID Cards</option>
+                        <option value="Keys">Keys</option>
+                        <option value="Bags">Bags</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select id="type-filter" onchange="app.ui.filterItems()">
+                        <option value="all">All Types</option>
+                        <option value="lost">Lost</option>
+                        <option value="found">Found</option>
+                    </select>
+                </div>
+                <div class="item-grid" id="all-items-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Report Form -->
+    <section id="report">
+        <div class="container">
+            <div class="auth-card reveal" style="max-width: 700px;">
+                <h2 id="report-title">Report Item</h2>
+                <form id="report-form" onsubmit="app.ui.handleReportSubmit(event)">
+                    <div class="form-group">
+                        <label>Item Title<span class="required-star">*</span></label>
+                        <input type="text" id="item-title" placeholder="e.g. Blue Backpack, iPhone 13" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description<span class="required-star">*</span></label>
+                        <textarea id="item-desc" rows="4" placeholder="Provide details like color, brand, unique marks..." required style="resize: none;"></textarea>
+                    </div>
+                    <div class="detail-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Category<span class="required-star">*</span></label>
+                            <select id="item-category" required>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Books">Books</option>
+                                <option value="ID Cards">ID Cards</option>
+                                <option value="Keys">Keys</option>
+                                <option value="Bags">Bags</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="location-label">Location<span class="required-star">*</span></label>
+                            <input type="text" id="item-location" placeholder="e.g. Library, Block A" required>
+                        </div>
+                    </div>
+                    <div class="detail-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Date<span class="required-star">*</span></label>
+                            <input type="date" id="item-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email<span class="required-star">*</span></label>
+                            <input type="email" id="item-contact" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number<span class="required-star">*</span></label>
+                        <input type="tel" id="item-phone" placeholder="e.g. 9876543210" minlength="10" pattern="[0-9]{10,}" title="Please enter at least 10 digits" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Image (Optional)</label>
+                        <div style="position: relative;">
+                            <input type="file" id="item-image" accept="image/*" onchange="app.ui.handleImagePreview(this)" style="opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2;">
+                            <div style="background: rgba(255,255,255,0.03); border: 2px dashed var(--glass-border); padding: 30px; border-radius: var(--radius-md); text-align: center; color: var(--text-muted); transition: all 0.3s;">
+                                <i style="font-size: 1.5rem; display: block; margin-bottom: 10px;">📁</i>
+                                <span>Click or drag to upload image</span>
+                            </div>
+                        </div>
+                        <div id="image-preview-container" style="margin-top: 20px; display: none; text-align: center;">
+                            <img id="image-preview" src="" style="width: 150px; height: 150px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--accent); box-shadow: var(--shadow-glow);">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 32px;">
+                        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="app.router.render('dashboard')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Admin Panel -->
+    <section id="admin">
+        <div class="container">
+            <div class="welcome-banner reveal">
+                <h2>Admin Control Panel</h2>
+                <p>Manage users and oversee all campus listings.</p>
+            </div>
+
+            <div class="admin-stats" id="admin-stats">
+                <!-- Dynamic stats -->
+            </div>
+
+            <div class="chart-container reveal">
+                <h3 style="color: var(--accent); font-weight: 700; letter-spacing: -0.5px;">Items by Category</h3>
+                <div class="bar-chart" id="category-chart">
+                    <!-- Dynamic bars -->
+                </div>
+            </div>
+
+            <div class="admin-table-container reveal">
+                <h3 style="padding: 24px; color: var(--accent); font-weight: 700; letter-spacing: -0.5px;">User Management</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-table-container reveal">
+                <h3 style="padding: 24px; color: var(--accent); font-weight: 700; letter-spacing: -0.5px;">Item Management</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Posted By</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="item-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Modals -->
+    <div id="item-modal" class="modal" onclick="if(event.target === this) app.ui.closeModal()" style="display: none;">
+        <div class="modal-content reveal active" style="transform: scale(0.9); transition: all 0.4s var(--transition);">
+            <div class="modal-header">
+                <h2 id="modal-title" style="font-weight: 700; letter-spacing: -0.5px;">Item Details</h2>
+                <button class="close-modal" onclick="app.ui.closeModal()" style="width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); display: flex; align-items: center; justify-content: center; transition: all 0.3s;">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" style="grid-template-columns: 1fr 1.2fr; gap: 40px;">
+                    <div id="modal-image-container">
+                        <img id="modal-image" src="" class="detail-img" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid var(--glass-border);">
+                    </div>
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <div id="modal-badge" style="margin-bottom: 24px;"></div>
+                        <p id="modal-desc" style="margin-bottom: 32px; line-height: 1.8; color: var(--text-muted); font-size: 1.05rem;"></p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
+                            <div class="item-meta"><i>📍</i> <span id="modal-location"></span></div>
+                            <div class="item-meta"><i>📅</i> <span id="modal-date"></span></div>
+                            <div class="item-meta"><i>✉️</i> <span id="modal-contact"></span></div>
+                            <div class="item-meta"><i>📞</i> <span id="modal-phone"></span></div>
+                        </div>
+                        <div id="modal-actions" style="display: flex; gap: 16px;">
+                            <!-- Dynamic buttons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION: Privacy Policy -->
+    <section id="privacy">
+        <div class="container">
+            <div class="auth-card reveal" style="max-width: 800px; text-align: left;">
+                <h2 style="text-align: left; margin-bottom: 24px;">Privacy Policy</h2>
+                <div style="color: var(--text-muted); line-height: 1.8;">
+                    <p style="margin-bottom: 16px;">Last Updated: April 2026</p>
+                    <p style="margin-bottom: 16px;">At TraceBack, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">1. Information We Collect</h3>
+                    <p style="margin-bottom: 16px;">We collect information you provide directly to us when you create an account, post a listing, or contact us. This includes your name, email address, phone number, and any details about items you report.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">2. How We Use Your Information</h3>
+                    <p style="margin-bottom: 16px;">We use your information to facilitate the recovery of lost items, communicate with you about your listings, and improve our services. Your contact information is shared with other users only when you explicitly post a listing.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">3. Data Security</h3>
+                    <p style="margin-bottom: 16px;">We implement industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">4. Third-Party Services</h3>
+                    <p style="margin-bottom: 16px;">We do not sell your personal information to third parties. We may use third-party services for hosting and analytics.</p>
+                </div>
+                <button class="btn btn-outline" style="margin-top: 32px;" onclick="app.router.render('landing')">Back to Home</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Terms of Service -->
+    <section id="terms">
+        <div class="container">
+            <div class="auth-card reveal" style="max-width: 800px; text-align: left;">
+                <h2 style="text-align: left; margin-bottom: 24px;">Terms of Service</h2>
+                <div style="color: var(--text-muted); line-height: 1.8;">
+                    <p style="margin-bottom: 16px;">Last Updated: April 2026</p>
+                    <p style="margin-bottom: 16px;">By using TraceBack, you agree to the following terms and conditions.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">1. User Conduct</h3>
+                    <p style="margin-bottom: 16px;">Users are responsible for the accuracy of the information they provide. Any fraudulent or misleading listings are strictly prohibited and may result in account termination.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">2. Item Ownership</h3>
+                    <p style="margin-bottom: 16px;">TraceBack is a platform for reporting lost and found items. We do not take responsibility for the physical handling or delivery of items. Users must arrange for the return of items at their own risk.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">3. Limitation of Liability</h3>
+                    <p style="margin-bottom: 16px;">TraceBack is provided "as is" without any warranties. We are not liable for any loss or damage resulting from the use of our platform.</p>
+                    
+                    <h3 style="color: var(--accent); margin: 24px 0 12px;">4. Changes to Terms</h3>
+                    <p style="margin-bottom: 16px;">We reserve the right to modify these terms at any time. Continued use of the platform constitutes acceptance of the updated terms.</p>
+                </div>
+                <button class="btn btn-outline" style="margin-top: 32px;" onclick="app.router.render('landing')">Back to Home</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Back to Top -->
+    <button id="back-to-top" class="btn btn-primary" style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%; padding: 0; display: none; z-index: 1000; box-shadow: var(--shadow-soft);" onclick="window.scrollTo(0,0)">
+        ↑
+    </button>
+
+    <!-- SECTION: Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- SECTION: Footer -->
+    <footer>
+        <div class="container" style="text-align: center;">
+            <div class="logo" style="justify-content: center; margin-bottom: 24px;">
+                Trace<span>Back</span>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Empowering the campus community to recover what matters most.</p>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 32px;">
+                <a href="#" onclick="app.router.render('privacy')" style="opacity: 0.6;">Privacy Policy</a>
+                <a href="#" onclick="app.router.render('terms')" style="opacity: 0.6;">Terms of Service</a>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=kpjethwa07@gmail.com" target="_blank" style="opacity: 0.6;">Contact Us</a>
+            </div>
+            <p style="font-size: 0.8rem; opacity: 0.4;">&copy; 2026 TraceBack. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- SECTION: Scripts -->
+    <script>
+        /* SECTION: Database Module */
+        const db = {
+            init() {
+                if (!localStorage.getItem('traceback_users')) {
+                    localStorage.setItem('traceback_users', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('traceback_items')) {
+                    localStorage.setItem('traceback_items', JSON.stringify([]));
+                }
+                this.seedAdmin();
+            },
+            async seedAdmin() {
+                const users = this.getUsers();
+                const adminEmail = 'kpjethwa07@gmail.com';
+                if (!users.find(u => u.email === adminEmail)) {
+                    const passwordHash = await app.auth.hashPassword('kaushal@007');
+                    users.push({
+                        id: 'admin-001',
+                        name: 'Admin',
+                        email: adminEmail,
+                        passwordHash: passwordHash,
+                        role: 'admin',
+                        createdAt: new Date().toISOString()
+                    });
+                    localStorage.setItem('traceback_users', JSON.stringify(users));
+                }
+            },
+            getUsers() { return JSON.parse(localStorage.getItem('traceback_users') || '[]'); },
+            getItems() { return JSON.parse(localStorage.getItem('traceback_items') || '[]'); },
+            saveUser(user) {
+                const users = this.getUsers();
+                users.push(user);
+                localStorage.setItem('traceback_users', JSON.stringify(users));
+            },
+            saveItem(item) {
+                const items = this.getItems();
+                items.push(item);
+                localStorage.setItem('traceback_items', JSON.stringify(items));
+            },
+            updateItem(id, updates) {
+                const items = this.getItems();
+                const index = items.findIndex(i => i.id === id);
+                if (index !== -1) {
+                    items[index] = { ...items[index], ...updates };
+                    localStorage.setItem('traceback_items', JSON.stringify(items));
+                }
+            },
+            deleteItem(id) {
+                const items = this.getItems().filter(i => i.id !== id);
+                localStorage.setItem('traceback_items', JSON.stringify(items));
+            },
+            deleteUser(id) {
+                const users = this.getUsers().filter(u => u.id !== id);
+                localStorage.setItem('traceback_users', JSON.stringify(users));
+            }
+        };
+
+        /* SECTION: App Core */
+        const app = {
+            currentUser: null,
+            reportType: 'lost',
+            editingItemId: null,
+            searchTimeout: null,
+
+            init() {
+                db.init();
+                this.auth.checkSession();
+                this.ui.initParticles();
+                this.ui.initScrollEffects();
+                this.ui.updateStats();
+                this.ui.updateNavbar();
+                
+                // Set max date for report form to today
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = document.getElementById('item-date');
+                if (dateInput) dateInput.max = today;
+
+                // Initialize location label
+                this.ui.setReportType(app.reportType);
+                
+                // Hide loader after a short delay
+                setTimeout(() => {
+                    document.getElementById('loader').style.opacity = '0';
+                    setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                }, 1000);
+            },
+
+            /* SECTION: Auth Module */
+            auth: {
+                async hashPassword(password) {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(password + 'traceback_salt_2026');
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                },
+                validateEmail(input) {
+                    const email = input.value;
+                    const error = document.getElementById('email-error');
+                    const isValidDomain = email.endsWith('@gmail.com');
+                    if (email && !isValidDomain) {
+                        error.style.display = 'block';
+                        input.style.borderColor = '#ff4d4d';
+                    } else {
+                        error.style.display = 'none';
+                        input.style.borderColor = 'var(--glass-border)';
+                    }
+                },
+                checkPasswordStrength(input) {
+                    const password = input.value;
+                    const bar = document.getElementById('strength-bar');
+                    let strength = 0;
+                    if (password.length > 5) strength += 25;
+                    if (/[A-Z]/.test(password)) strength += 25;
+                    if (/[0-9]/.test(password)) strength += 25;
+                    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+
+                    bar.style.width = strength + '%';
+                    if (strength <= 25) bar.style.background = '#ff4d4d';
+                    else if (strength <= 75) bar.style.background = '#ffa500';
+                    else bar.style.background = '#4caf50';
+                },
+                async handleRegister(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('reg-name').value;
+                    const email = document.getElementById('reg-email').value;
+                    const password = document.getElementById('reg-password').value;
+                    const confirm = document.getElementById('reg-confirm').value;
+
+                    const isValidDomain = email.endsWith('@gmail.com');
+                    if (!isValidDomain) {
+                        app.ui.showToast('Please use a valid @gmail.com address.', 'error');
+                        return;
+                    }
+                    if (password !== confirm) {
+                        app.ui.showToast('Passwords do not match.', 'error');
+                        return;
+                    }
+                    if (db.getUsers().find(u => u.email === email)) {
+                        app.ui.showToast('Email already registered.', 'error');
+                        return;
+                    }
+
+                    const passwordHash = await this.hashPassword(password);
+                    const newUser = {
+                        id: 'user-' + Date.now(),
+                        name,
+                        email,
+                        passwordHash,
+                        role: 'user',
+                        createdAt: new Date().toISOString()
+                    };
+
+                    db.saveUser(newUser);
+                    app.ui.showToast('Registration successful!', 'success');
+                    this.loginUser(newUser);
+                },
+                async handleLogin(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    const remember = document.getElementById('remember-me').checked;
+
+                    const user = db.getUsers().find(u => u.email === email);
+                    if (user) {
+                        const hash = await this.hashPassword(password);
+                        if (user.passwordHash === hash) {
+                            this.loginUser(user, remember);
+                            return;
+                        }
+                    }
+
+                    const card = document.querySelector('#login .auth-card');
+                    card.classList.add('shake');
+                    setTimeout(() => card.classList.remove('shake'), 400);
+                    app.ui.showToast('Invalid email or password.', 'error');
+                },
+                loginUser(user, remember = false) {
+                    app.currentUser = user;
+                    localStorage.setItem('traceback_session', JSON.stringify(user));
+                    app.ui.showToast(`Welcome, ${user.name}!`, 'success');
+                    app.router.render(user.role === 'admin' ? 'admin' : 'dashboard');
+                },
+                logout() {
+                    app.currentUser = null;
+                    localStorage.removeItem('traceback_session');
+                    app.ui.showToast('Logged out successfully.', 'info');
+                    app.router.render('landing');
+                },
+                checkSession() {
+                    const session = localStorage.getItem('traceback_session');
+                    if (session) {
+                        app.currentUser = JSON.parse(session);
+                        app.router.render(app.currentUser.role === 'admin' ? 'admin' : 'dashboard');
+                    }
+                }
+            },
+
+            /* SECTION: Router Module */
+            router: {
+                render(pageId, params = null) {
+                    // Auth Guards
+                    if (['dashboard', 'report', 'admin'].includes(pageId) && !app.currentUser) {
+                        pageId = 'login';
+                    }
+                    if (pageId === 'admin' && app.currentUser?.role !== 'admin') {
+                        pageId = 'dashboard';
+                    }
+
+                    // Hide all sections
+                    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+                    
+                    // Show target section
+                    const section = document.getElementById(pageId);
+                    if (section) {
+                        section.classList.add('active');
+                        window.scrollTo(0, 0);
+                    }
+
+                    // Page Specific Logic
+                    if (pageId === 'dashboard') app.ui.renderDashboard();
+                    if (pageId === 'admin') app.ui.renderAdmin();
+                    if (pageId === 'report') {
+                        app.ui.setReportType(params?.type || 'lost');
+                        const form = document.getElementById('report-form');
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        const titleEl = document.getElementById('report-title');
+                        
+                        form.reset();
+                        document.getElementById('image-preview-container').style.display = 'none';
+                        document.getElementById('item-contact').value = app.currentUser.email;
+
+                        if (params?.editId) {
+                            app.editingItemId = params.editId;
+                            const item = db.getItems().find(i => i.id === params.editId);
+                            if (item) {
+                                app.ui.setReportType(item.type);
+                                titleEl.innerText = `Edit ${item.type.toUpperCase()} Item`;
+                                submitBtn.innerText = 'Update Listing';
+                                
+                                document.getElementById('item-title').value = item.title;
+                                document.getElementById('item-desc').value = item.description;
+                                document.getElementById('item-category').value = item.category;
+                                document.getElementById('item-location').value = item.location;
+                                document.getElementById('item-date').value = item.date;
+                                document.getElementById('item-contact').value = item.contactEmail;
+                                document.getElementById('item-phone').value = item.contactPhone || '';
+                                
+                                if (item.imageBase64) {
+                                    const preview = document.getElementById('image-preview');
+                                    preview.src = item.imageBase64;
+                                    document.getElementById('image-preview-container').style.display = 'block';
+                                }
+                            }
+                        } else {
+                            app.editingItemId = null;
+                            titleEl.innerText = `Report ${app.reportType.toUpperCase()} Item`;
+                            submitBtn.innerText = 'Submit Report';
+                        }
+                    }
+
+                    app.ui.updateNavbar();
+                }
+            },
+
+            /* SECTION: UI Module */
+            ui: {
+                toggleTheme() {
+                    const body = document.body;
+                    const icon = document.getElementById('theme-icon');
+                    if (body.getAttribute('data-theme') === 'light') {
+                        body.removeAttribute('data-theme');
+                        icon.innerText = '🌙';
+                    } else {
+                        body.setAttribute('data-theme', 'light');
+                        icon.innerText = '☀️';
+                    }
+                },
+                showToast(msg, type = 'info') {
+                    const container = document.getElementById('toast-container');
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.style.cssText = `
+                        background: rgba(15, 15, 15, 0.9);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid var(--glass-border);
+                        padding: 16px 24px;
+                        border-radius: var(--radius-md);
+                        margin-top: 12px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                        border-left: 4px solid ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : 'var(--accent)'};
+                        color: white;
+                        font-weight: 500;
+                        font-size: 0.9rem;
+                    `;
+                    toast.innerHTML = `<span style="font-size: 1.2rem;">${type === 'success' ? '✨' : type === 'error' ? '🚨' : '🔔'}</span> ${msg}`;
+                    container.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.transform = 'translateX(100px)';
+                        toast.style.opacity = '0';
+                        setTimeout(() => toast.remove(), 400);
+                    }, 4000);
+                },
+                initParticles() {
+                    const container = document.getElementById('particles');
+                    if (!container) return;
+                    for (let i = 0; i < 25; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'particle';
+                        const size = Math.random() * 8 + 4;
+                        p.style.width = size + 'px';
+                        p.style.height = size + 'px';
+                        p.style.left = Math.random() * 100 + '%';
+                        p.style.top = Math.random() * 100 + '%';
+                        p.style.animationDelay = Math.random() * 5 + 's';
+                        p.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                        container.appendChild(p);
+                    }
+                },
+                initScrollEffects() {
+                    const header = document.querySelector('header');
+                    const backToTop = document.getElementById('back-to-top');
+                    
+                    window.addEventListener('scroll', () => {
+                        if (window.scrollY > 50) {
+                            header.classList.add('scrolled');
+                        } else {
+                            header.classList.remove('scrolled');
+                        }
+
+                        if (window.scrollY > 500) {
+                            backToTop.style.display = 'block';
+                        } else {
+                            backToTop.style.display = 'none';
+                        }
+                    });
+
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('active');
+                            }
+                        });
+                    }, { threshold: 0.15 });
+
+                    this.observeElements(observer);
+                },
+                observeElements(observer) {
+                    document.querySelectorAll('.reveal, .action-card, .item-card, .admin-stat-card, .auth-card, .welcome-banner, .filters, .chart-container, .admin-table-container').forEach(el => {
+                        if (!el.classList.contains('reveal')) el.classList.add('reveal');
+                        observer.observe(el);
+                    });
+                },
+                showSkeleton(gridId) {
+                    const grid = document.getElementById(gridId);
+                    grid.innerHTML = Array(6).fill(0).map(() => `
+                        <div class="item-card" style="opacity: 0.5; pointer-events: none;">
+                            <div style="height: 200px; background: var(--glass-bg); animation: pulse 1.5s infinite;"></div>
+                            <div class="item-info">
+                                <div style="height: 20px; width: 40%; background: var(--glass-bg); margin-bottom: 10px; animation: pulse 1.5s infinite;"></div>
+                                <div style="height: 25px; width: 80%; background: var(--glass-bg); margin-bottom: 15px; animation: pulse 1.5s infinite;"></div>
+                                <div style="height: 15px; width: 60%; background: var(--glass-bg); margin-bottom: 8px; animation: pulse 1.5s infinite;"></div>
+                                <div style="height: 15px; width: 50%; background: var(--glass-bg); animation: pulse 1.5s infinite;"></div>
+                            </div>
+                        </div>
+                    `).join('');
+                },
+                updateStats() {
+                    const items = db.getItems();
+                    const users = db.getUsers();
+                    document.getElementById('stat-reported').innerText = items.filter(i => i.type === 'lost').length;
+                    document.getElementById('stat-found').innerText = items.filter(i => i.type === 'found').length;
+                    document.getElementById('stat-users').innerText = users.length;
+                },
+                updateNavbar() {
+                    const nav = document.getElementById('nav-links');
+                    const profile = document.getElementById('user-profile-nav');
+                    const currentPage = document.querySelector('section.active')?.id;
+                    
+                    const getActiveClass = (id) => currentPage === id ? 'style="color: var(--accent); opacity: 1;"' : '';
+
+                    if (app.currentUser) {
+                        nav.innerHTML = `
+                            <a href="#" onclick="app.router.render('dashboard')" ${getActiveClass('dashboard')}>Dashboard</a>
+                            ${app.currentUser.role === 'admin' ? `<a href="#" onclick="app.router.render('admin')" ${getActiveClass('admin')}>Admin Panel</a>` : ''}
+                            <a href="#" onclick="app.auth.logout()">Logout</a>
+                        `;
+                        profile.innerHTML = `<span style="color: var(--accent); font-weight: 700; font-size: 0.85rem; background: var(--glass-bg); padding: 8px 16px; border-radius: var(--radius-full); border: 1px solid var(--glass-border);">Hi, ${app.currentUser.name.split(' ')[0]}</span>`;
+                    } else {
+                        nav.innerHTML = `
+                            <a href="#" onclick="app.router.render('landing')" ${getActiveClass('landing')}>Home</a>
+                            <button class="btn btn-outline" onclick="app.router.render('login')">Login</button>
+                            <button class="btn btn-primary" onclick="app.router.render('register')">Register</button>
+                        `;
+                        profile.innerHTML = '';
+                    }
+                },
+                renderDashboard() {
+                    document.getElementById('user-display-name').innerText = app.currentUser.name;
+                    this.renderItems();
+                },
+                renderItems() {
+                    const items = db.getItems();
+                    const myItems = items.filter(i => i.postedBy === app.currentUser.email);
+                    
+                    const myGrid = document.getElementById('my-items-grid');
+                    const allGrid = document.getElementById('all-items-grid');
+                    const mySection = document.getElementById('my-listings-section');
+
+                    this.showSkeleton('all-items-grid');
+                    if (myItems.length > 0) this.showSkeleton('my-items-grid');
+
+                    setTimeout(() => {
+                        if (myItems.length > 0) {
+                            mySection.style.display = 'block';
+                            myGrid.innerHTML = myItems.map(item => this.createItemCard(item, true)).join('');
+                        } else {
+                            mySection.style.display = 'none';
+                        }
+                        this.filterItems();
+                        
+                        // Re-observe new elements
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) entry.target.classList.add('active');
+                            });
+                        }, { threshold: 0.1 });
+                        this.observeElements(observer);
+                    }, 600);
+                },
+                createItemCard(item, isOwner = false) {
+                    return `
+                        <div class="item-card reveal" onclick="app.ui.openModal('${item.id}')">
+                            <div style="overflow: hidden;">
+                                <img src="${item.imageBase64 || 'https://picsum.photos/seed/' + item.id + '/400/300'}" class="item-img" alt="${item.title}">
+                            </div>
+                            <div class="item-info">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <span class="item-badge badge-${item.type}">${item.type}</span>
+                                    <span class="item-badge badge-category">${item.category}</span>
+                                </div>
+                                <h4 class="item-title">${item.title}</h4>
+                                <div class="item-meta"><i>📍</i> ${item.location}</div>
+                                <div class="item-meta"><i>📅</i> ${new Date(item.date).toLocaleDateString('en-IN')}</div>
+                                ${item.status === 'resolved' ? '<div style="color: #2ecc71; font-weight: 800; margin-top: 12px; font-size: 0.75rem; letter-spacing: 1px;">RESOLVED</div>' : ''}
+                            </div>
+                        </div>
+                    `;
+                },
+                setReportType(type) {
+                    app.reportType = type;
+                    document.getElementById('report-title').innerText = `Report ${type.toUpperCase()} Item`;
+                    
+                    const locationLabel = document.getElementById('location-label');
+                    if (type === 'lost') {
+                        locationLabel.innerHTML = `Location where you lost this<span class="required-star">*</span>`;
+                    } else {
+                        locationLabel.innerHTML = `Location where you found this<span class="required-star">*</span>`;
+                    }
+                },
+                handleImagePreview(input) {
+                    const file = input.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.getElementById('image-preview');
+                            preview.src = e.target.result;
+                            document.getElementById('image-preview-container').style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+                async handleReportSubmit(e) {
+                    e.preventDefault();
+                    const title = document.getElementById('item-title').value;
+                    const desc = document.getElementById('item-desc').value;
+                    const category = document.getElementById('item-category').value;
+                    const location = document.getElementById('item-location').value;
+                    const date = document.getElementById('item-date').value;
+                    const contact = document.getElementById('item-contact').value;
+                    const phone = document.getElementById('item-phone').value;
+                    const imageInput = document.getElementById('item-image');
+                    
+                    let imageBase64 = '';
+                    if (imageInput.files[0]) {
+                        imageBase64 = await new Promise(resolve => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.readAsDataURL(imageInput.files[0]);
+                        });
+                    } else if (app.editingItemId) {
+                        // Keep existing image if not changed
+                        const item = db.getItems().find(i => i.id === app.editingItemId);
+                        imageBase64 = item?.imageBase64 || '';
+                    }
+
+                    if (app.editingItemId) {
+                        db.updateItem(app.editingItemId, {
+                            type: app.reportType,
+                            title,
+                            description: desc,
+                            category,
+                            location,
+                            date,
+                            contactEmail: contact,
+                            contactPhone: phone,
+                            imageBase64
+                        });
+                        this.showToast('Listing updated successfully!', 'success');
+                    } else {
+                        const newItem = {
+                            id: 'item-' + Date.now(),
+                            type: app.reportType,
+                            title,
+                            description: desc,
+                            category,
+                            location,
+                            date,
+                            contactEmail: contact,
+                            contactPhone: phone,
+                            status: 'open',
+                            postedBy: app.currentUser.email,
+                            imageBase64,
+                            createdAt: new Date().toISOString()
+                        };
+                        db.saveItem(newItem);
+                        this.showToast('Item reported successfully!', 'success');
+                    }
+                    
+                    app.editingItemId = null;
+                    app.router.render('dashboard');
+                },
+                debouncedSearch(val) {
+                    clearTimeout(app.searchTimeout);
+                    app.searchTimeout = setTimeout(() => this.filterItems(), 300);
+                },
+                filterItems() {
+                    const query = document.getElementById('search-input').value.toLowerCase();
+                    const category = document.getElementById('category-filter').value;
+                    const type = document.getElementById('type-filter').value;
+                    
+                    const items = db.getItems().filter(i => {
+                        const matchesQuery = i.title.toLowerCase().includes(query) || i.description.toLowerCase().includes(query);
+                        const matchesCategory = category === 'all' || i.category === category;
+                        const matchesType = type === 'all' || i.type === type;
+                        return matchesQuery && matchesCategory && matchesType;
+                    });
+
+                    const grid = document.getElementById('all-items-grid');
+                    grid.innerHTML = items.length > 0 
+                        ? items.map(item => this.createItemCard(item)).join('')
+                        : '<p style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">No items found matching your criteria.</p>';
+                },
+                openModal(id) {
+                    const item = db.getItems().find(i => i.id === id);
+                    if (!item) return;
+
+                    document.getElementById('modal-title').innerText = item.title;
+                    document.getElementById('modal-desc').innerText = item.description;
+                    document.getElementById('modal-location').innerText = item.location;
+                    document.getElementById('modal-date').innerText = new Date(item.date).toLocaleDateString('en-IN');
+                    document.getElementById('modal-contact').innerText = item.contactEmail;
+                    document.getElementById('modal-phone').innerText = item.contactPhone || 'Not provided';
+                    
+                    const badge = document.getElementById('modal-badge');
+                    badge.innerHTML = `
+                        <span class="item-badge badge-${item.type}">${item.type}</span>
+                        <span class="item-badge badge-category">${item.category}</span>
+                    `;
+                    badge.className = ''; // Remove old class as we use innerHTML for badges
+
+                    const img = document.getElementById('modal-image');
+                    if (item.imageBase64) {
+                        img.src = item.imageBase64;
+                        document.getElementById('modal-image-container').style.display = 'block';
+                    } else {
+                        document.getElementById('modal-image-container').style.display = 'none';
+                    }
+
+                    const actions = document.getElementById('modal-actions');
+                    actions.innerHTML = '';
+                    
+                    if (app.currentUser.email === item.postedBy || app.currentUser.role === 'admin') {
+                        if (item.status === 'open') {
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'btn btn-outline';
+                            editBtn.innerText = 'Edit Listing';
+                            editBtn.onclick = () => {
+                                app.ui.closeModal();
+                                app.router.render('report', { editId: item.id });
+                            };
+                            actions.appendChild(editBtn);
+
+                            const resolveBtn = document.createElement('button');
+                            resolveBtn.className = 'btn btn-primary';
+                            resolveBtn.innerText = 'Mark as Resolved';
+                            resolveBtn.onclick = () => {
+                                db.updateItem(item.id, { status: 'resolved' });
+                                app.ui.showToast('Item marked as resolved.', 'success');
+                                app.ui.closeModal();
+                                app.router.render(app.currentUser.role === 'admin' ? 'admin' : 'dashboard');
+                            };
+                            actions.appendChild(resolveBtn);
+                        }
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'btn btn-outline';
+                        deleteBtn.innerText = 'Delete Listing';
+                        deleteBtn.onclick = () => {
+                            db.deleteItem(item.id);
+                            app.ui.showToast('Listing deleted.', 'info');
+                            app.ui.closeModal();
+                            app.router.render(app.currentUser.role === 'admin' ? 'admin' : 'dashboard');
+                        };
+                        actions.appendChild(deleteBtn);
+                    } else {
+                        const contactBtn = document.createElement('button');
+                        contactBtn.className = 'btn btn-primary';
+                        contactBtn.innerText = 'Contact Reporter';
+                        contactBtn.onclick = () => {
+                            window.location.href = `mailto:${item.contactEmail}?subject=Regarding your Lost/Found listing: ${item.title}`;
+                        };
+                        actions.appendChild(contactBtn);
+                    }
+
+                    document.getElementById('item-modal').style.display = 'flex';
+                },
+                closeModal() {
+                    document.getElementById('item-modal').style.display = 'none';
+                },
+                renderAdmin() {
+                    const items = db.getItems();
+                    const users = db.getUsers();
+                    
+                    // Stats
+                    const stats = document.getElementById('admin-stats');
+                    stats.innerHTML = `
+                        <div class="admin-stat-card reveal"><h4>Total Users</h4><p>${users.length}</p></div>
+                        <div class="admin-stat-card reveal" style="transition-delay: 0.1s"><h4>Total Items</h4><p>${items.length}</p></div>
+                        <div class="admin-stat-card reveal" style="transition-delay: 0.2s"><h4>Lost</h4><p>${items.filter(i => i.type === 'lost').length}</p></div>
+                        <div class="admin-stat-card reveal" style="transition-delay: 0.3s"><h4>Found</h4><p>${items.filter(i => i.type === 'found').length}</p></div>
+                        <div class="admin-stat-card reveal" style="transition-delay: 0.4s"><h4>Resolved</h4><p>${items.filter(i => i.status === 'resolved').length}</p></div>
+                    `;
+
+                    // Chart
+                    const categories = ['Electronics', 'Clothing', 'Books', 'ID Cards', 'Keys', 'Bags', 'Other'];
+                    const chart = document.getElementById('category-chart');
+                    const maxCount = Math.max(...categories.map(c => items.filter(i => i.category === c).length), 1);
+                    
+                    chart.innerHTML = categories.map((cat, i) => {
+                        const count = items.filter(i => i.category === cat).length;
+                        const height = (count / maxCount) * 100;
+                        return `
+                            <div class="bar-item reveal" style="height: ${height}%; transition-delay: ${i * 0.1}s">
+                                <span class="bar-label">${cat}</span>
+                                <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: 700; color: var(--accent);">${count}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // User Table
+                    const userTable = document.getElementById('user-table-body');
+                    userTable.innerHTML = users.map(user => `
+                        <tr class="reveal">
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td><span class="item-badge" style="background: ${user.role === 'admin' ? 'var(--accent)' : 'var(--glass-bg)'}; color: ${user.role === 'admin' ? 'black' : 'white'}">${user.role}</span></td>
+                            <td>${new Date(user.createdAt).toLocaleDateString('en-IN')}</td>
+                            <td>
+                                ${user.role !== 'admin' ? `<button onclick="app.ui.deleteUser('${user.id}')" style="color: #ff4d4d; font-weight: 600;">Delete</button>` : '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    // Item Table
+                    const itemTable = document.getElementById('item-table-body');
+                    itemTable.innerHTML = items.map(item => `
+                        <tr class="reveal">
+                            <td>${item.title}</td>
+                            <td><span class="item-badge badge-${item.type}">${item.type}</span></td>
+                            <td><span class="item-badge badge-category" style="font-size: 0.6rem;">${item.category}</span></td>
+                            <td>${item.postedBy}</td>
+                            <td><span style="color: ${item.status === 'resolved' ? '#2ecc71' : 'var(--accent)'}; font-weight: 700;">${item.status.toUpperCase()}</span></td>
+                            <td>
+                                <button onclick="app.ui.openModal('${item.id}')" style="color: var(--accent); font-weight: 600; margin-right: 10px;">View</button>
+                                <button onclick="app.ui.deleteItem('${item.id}')" style="color: #ff4d4d; font-weight: 600;">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    // Re-observe
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) entry.target.classList.add('active');
+                        });
+                    }, { threshold: 0.1 });
+                    this.observeElements(observer);
+                },
+                deleteUser(id) {
+                    db.deleteUser(id);
+                    this.showToast('User deleted.', 'info');
+                    this.renderAdmin();
+                },
+                deleteItem(id) {
+                    db.deleteItem(id);
+                    this.showToast('Item deleted.', 'info');
+                    this.renderAdmin();
+                }
+            }
+        };
+
+        // Initialize App
+        window.onload = () => app.init();
+
+    </script>
+</body>
+</html>

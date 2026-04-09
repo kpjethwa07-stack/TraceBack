@@ -1,0 +1,21 @@
+{
+  "name": "TraceBack",
+  "short_name": "TraceBack",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#6B0F1A",
+  "description": "Campus Lost & Found Portal",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/traceback/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/traceback/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
