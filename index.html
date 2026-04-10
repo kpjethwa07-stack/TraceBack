@@ -695,6 +695,13 @@
         }
 
         /* Admin Panel */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
         .admin-stat-card {
             background: var(--bg-card);
             padding: 32px;
@@ -739,6 +746,17 @@
 
         .bar-item:hover { background: var(--accent); transform: scaleX(1.1); }
 
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
         .admin-table-container {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -747,11 +765,24 @@
             margin-bottom: 48px;
         }
 
-        th { 
-            background: rgba(255, 255, 255, 0.02); 
-            color: var(--accent); 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 700;
         }
@@ -785,10 +816,94 @@
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links { display: none; }
+            .mobile-menu-btn { display: flex !important; }
             .hero-content h1 { font-size: 2.8rem; }
             .stats-container { flex-direction: column; gap: 40px; padding: 40px; }
             .stat-item::after { display: none; }
             .action-cards { grid-template-columns: 1fr; }
+            .theme-toggle { margin-left: 5px; }
+            #user-profile-nav { display: none; }
+            .detail-grid { grid-template-columns: 1fr !important; }
+            .filters { flex-direction: column; align-items: stretch; }
+            .filters select { width: 100%; }
+            .item-grid { grid-template-columns: 1fr; }
+            .modal-body { padding: 20px; }
+            .admin-stats { grid-template-columns: 1fr; }
+            .bar-chart { 
+                gap: 12px; 
+                overflow-x: auto; 
+                padding-bottom: 50px;
+                justify-content: flex-start;
+                align-items: flex-end;
+            }
+            .bar-item { min-width: 40px; }
+            .bar-label { font-size: 0.6rem; bottom: -35px; }
+            .chart-container { padding: 20px; }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 10px;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--accent);
+            transition: 0.3s;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
+        .mobile-menu-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--glass-border);
+        }
+
+        .mobile-nav.active {
+            right: 0;
+        }
+
+        .mobile-nav a, .mobile-nav button {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            padding: 10px 20px;
+            width: 100%;
+            text-align: center;
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+
+        .mobile-nav a:active {
+            background: var(--glass-bg);
+            color: var(--accent);
+        }
+
+        .mobile-nav .logout-btn {
+            color: #ff4d4d !important;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 77, 77, 0.2);
         }
 
         /* Custom UI Elements */
@@ -829,10 +944,20 @@
                         <i id="theme-icon">🌙</i>
                     </button>
                     <div id="user-profile-nav" style="margin-left: 20px;"></div>
+                    <div class="mobile-menu-btn" id="mobile-menu-btn" onclick="app.ui.toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             </nav>
         </div>
     </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobile-nav">
+        <!-- Dynamic links for mobile -->
+    </div>
 
     <!-- SECTION: Landing Page -->
     <section id="landing" class="active">
@@ -1592,26 +1717,47 @@
                 },
                 updateNavbar() {
                     const nav = document.getElementById('nav-links');
+                    const mobileNav = document.getElementById('mobile-nav');
                     const profile = document.getElementById('user-profile-nav');
                     const currentPage = document.querySelector('section.active')?.id;
                     
                     const getActiveClass = (id) => currentPage === id ? 'style="color: var(--accent); opacity: 1;"' : '';
 
                     if (app.currentUser) {
-                        nav.innerHTML = `
-                            <a href="#" onclick="app.router.render('dashboard')" ${getActiveClass('dashboard')}>Dashboard</a>
-                            ${app.currentUser.role === 'admin' ? `<a href="#" onclick="app.router.render('admin')" ${getActiveClass('admin')}>Admin Panel</a>` : ''}
-                            <a href="#" onclick="app.auth.logout()">Logout</a>
+                        const links = `
+                            <a href="#" onclick="app.ui.closeMobileMenu(); app.router.render('dashboard')" ${getActiveClass('dashboard')}>Dashboard</a>
+                            ${app.currentUser.role === 'admin' ? `<a href="#" onclick="app.ui.closeMobileMenu(); app.router.render('admin')" ${getActiveClass('admin')}>Admin Panel</a>` : ''}
+                            <a href="#" class="logout-btn" onclick="app.ui.closeMobileMenu(); app.auth.logout()">Logout</a>
                         `;
+                        nav.innerHTML = links;
+                        mobileNav.innerHTML = links;
                         profile.innerHTML = `<span style="color: var(--accent); font-weight: 700; font-size: 0.85rem; background: var(--glass-bg); padding: 8px 16px; border-radius: var(--radius-full); border: 1px solid var(--glass-border);">Hi, ${app.currentUser.name.split(' ')[0]}</span>`;
                     } else {
+                        const links = `
+                            <a href="#" onclick="app.ui.closeMobileMenu(); app.router.render('landing')" ${getActiveClass('landing')}>Home</a>
+                            <a href="#" onclick="app.ui.closeMobileMenu(); app.router.render('login')">Login</a>
+                            <a href="#" onclick="app.ui.closeMobileMenu(); app.router.render('register')">Register</a>
+                        `;
                         nav.innerHTML = `
                             <a href="#" onclick="app.router.render('landing')" ${getActiveClass('landing')}>Home</a>
                             <button class="btn btn-outline" onclick="app.router.render('login')">Login</button>
                             <button class="btn btn-primary" onclick="app.router.render('register')">Register</button>
                         `;
+                        mobileNav.innerHTML = links;
                         profile.innerHTML = '';
                     }
+                },
+                toggleMobileMenu() {
+                    const btn = document.getElementById('mobile-menu-btn');
+                    const nav = document.getElementById('mobile-nav');
+                    btn.classList.toggle('active');
+                    nav.classList.toggle('active');
+                },
+                closeMobileMenu() {
+                    const btn = document.getElementById('mobile-menu-btn');
+                    const nav = document.getElementById('mobile-nav');
+                    btn.classList.remove('active');
+                    nav.classList.remove('active');
                 },
                 renderDashboard() {
                     document.getElementById('user-display-name').innerText = app.currentUser.name;
